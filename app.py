@@ -146,7 +146,7 @@ for feature in selected_features:
 
 if st.button("🔍 Predict"):
     if st.session_state.model is None:
-        st.error("🚨 No trained model found! Please train a model first.")
+        st.error(":🚨 No trained model found! Please select a model from top-left sidebar and train the model first. Once the training is complete, you can proceed with making predictions. ✅")
     else:
         for col in categorical_cols:
             input_data[col] = label_encoders[col].transform([input_data[col]])[0]
