@@ -17,12 +17,15 @@ st.set_page_config(page_title="Osteoporosis Risk Prediction", layout="wide")
 
 st.markdown("<h1 style='text-align: center;'>🦴 Osteoporosis Risk Prediction</h1>", unsafe_allow_html=True)
 
-# ✅ Sidebar for Model Selection
+# ✅ Sidebar Instructions for Mobile Users
 st.sidebar.header("🔧 Model Settings")
-model_choice = st.sidebar.selectbox("🧠 Choose Model", ["Logistic Regression", "Random Forest", "Decision Tree", "SVM"])
+st.sidebar.info("📱 If using a phone, **tap the ☰ (menu) at the top-left** to select a model.")
+
+# ✅ Default Model Selection (Mobile-Friendly)
+model_choice = st.sidebar.selectbox("🧠 Choose Model", ["Random Forest", "Logistic Regression", "Decision Tree", "SVM"], index=0)
 
 # ✅ Load CSV File from GitHub
-url = "https://raw.githubusercontent.com/meet-dodiya1710/Osteoporosis-Risk-Prediction/refs/heads/main/osteoporosis.csv"
+url = "https://raw.githubusercontent.com/meet-dodiya1710/Osteoporosis-Risk-Prediction/main/osteoporosis.csv"
 
 try:
     data = pd.read_csv(url)
@@ -37,10 +40,8 @@ st.write(f"🔹 *Shape:* {data.shape[0]} rows × {data.shape[1]} columns")
 st.dataframe(data.head())
 
 # ✅ Handle Missing Values
-st.markdown("<h2>🚨 Missing Values Information</h2>", unsafe_allow_html=True)
+st.markdown("<h2>🚨 Missing Values Handling</h2>", unsafe_allow_html=True)
 missing_values = data.isnull().sum()
-st.dataframe(missing_values[missing_values > 0])
-
 if missing_values.sum() > 0:
     st.warning("⚠ Missing values detected. Filling with mode.")
     for col in missing_values.index:
