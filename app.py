@@ -17,10 +17,6 @@ st.set_page_config(page_title="Osteoporosis Risk Prediction", layout="wide")
 
 st.markdown("<h1 style='text-align: center;'>🦴 Osteoporosis Risk Prediction</h1>", unsafe_allow_html=True)
 
-# ✅ Sidebar for Model Selection
-st.sidebar.header("🔧 Model Settings")
-model_choice = st.sidebar.selectbox("🧠 Choose Model", ["Logistic Regression", "Random Forest", "Decision Tree", "SVM"])
-
 # ✅ Load CSV File from GitHub
 url = "https://raw.githubusercontent.com/meet-dodiya1710/Osteoporosis-Risk-Prediction/refs/heads/main/osteoporosis.csv"
 
@@ -31,10 +27,32 @@ except Exception as e:
     st.error(f"🚨 Error loading CSV: {e}")
     st.stop()  # Stop execution if CSV loading fails
 
-# ✅ Display Dataset Overview
+# ✅ Dataset Overview
 st.markdown("<h2>📊 Dataset Overview</h2>", unsafe_allow_html=True)
 st.write(f"🔹 *Shape:* {data.shape[0]} rows × {data.shape[1]} columns")
 st.dataframe(data.head())
+
+# ✅ Dataset Information
+st.markdown("<h2>📜 Dataset Information</h2>", unsafe_allow_html=True)
+buffer = data.dtypes.reset_index()
+buffer.columns = ["Feature", "Data Type"]
+st.dataframe(buffer)
+
+# ✅ Dataset Shape
+st.markdown("<h2>📏 Dataset Shape</h2>", unsafe_allow_html=True)
+st.write(f"🔹 The dataset contains **{data.shape[0]} rows** and **{data.shape[1]} columns**.")
+
+# ✅ Dataset Statistics (Describe)
+st.markdown("<h2>📊 Dataset Summary Statistics</h2>", unsafe_allow_html=True)
+st.dataframe(data.describe().transpose().style.format(precision=2))
+
+# ✅ Dataset Categorical Describe
+st.markdown("<h2>🔤 Categorical Features Summary</h2>", unsafe_allow_html=True)
+categorical_cols = data.select_dtypes(include=['object', 'category']).columns.tolist()
+if categorical_cols:
+    st.dataframe(data[categorical_cols].describe().transpose())
+else:
+    st.info("ℹ No categorical features found in the dataset.")
 
 # ✅ Handle Missing Values
 st.markdown("<h2>🚨 Missing Values Information</h2>", unsafe_allow_html=True)
@@ -50,7 +68,6 @@ else:
     st.success("✅ No missing values found.")
 
 # ✅ Encode Categorical Variables
-categorical_cols = data.select_dtypes(include=['object', 'category']).columns.tolist()
 label_encoders = {}
 for col in categorical_cols:
     le = LabelEncoder()
@@ -69,13 +86,16 @@ X_scaled = scaler.fit_transform(X)
 # ✅ Split Data into Training & Test Sets
 X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42, stratify=y)
 
+# ✅ Model Selection (Inside the App)
+st.markdown("<h2>🛠 Select & Train Model</h2>", unsafe_allow_html=True)
+model_choice = st.selectbox("🧠 Choose Model", ["Logistic Regression", "Random Forest", "Decision Tree", "SVM"])
+
 # ✅ Initialize Session State for Model
 if "model" not in st.session_state:
     st.session_state.model = None
 
 # ✅ Train the Model
-st.sidebar.subheader("🚀 Train the Model")
-if st.sidebar.button("Start Training"):
+if st.button("🚀 Train Model"):
     loading_placeholder = st.empty()
     
     with loading_placeholder.container():
@@ -145,7 +165,7 @@ for feature in selected_features:
 
 if st.button("🔍 Predict"):
     if st.session_state.model is None:
-        st.error(":🚨 No trained model found! Please select a model from top-left sidebar and train the model first. Once the training is complete, you can proceed with making predictions. ✅")
+        st.error("🚨 **No trained model found!** Please select a model and train it first before making predictions.")
     else:
         for col in categorical_cols:
             input_data[col] = label_encoders[col].transform([input_data[col]])[0]
